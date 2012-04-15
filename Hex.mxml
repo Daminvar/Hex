@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"
+    xmlns:s="library://ns.adobe.com/flex/spark"
+    xmlns:mx="library://ns.adobe.com/flex/mx"
+    xmlns:self="*"
+    creationComplete="init()">
+
+    <fx:Script source="Hex.as"/>
+
+    <fx:Declarations>
+        <s:Bounce id="panelResize"/>
+    </fx:Declarations>
+
+    <s:states>
+        <s:State name="LoginState"/>
+        <s:State name="ChatState" enterState="player=Player.NEITHER"/>
+        <!--TODO: For spectators, this won't work. -->
+        <s:State name="PlayState" enterState="gameContainer.reset(player)"/>
+        <s:State name="ConfirmState"/>
+    </s:states>
+
+    <s:transitions>
+        <s:Transition fromState="*" toState="PlayState">
+            <s:Sequence>
+                <s:Resize duration="500" easer="{panelResize}"
+                    target="{chatbox}"/>
+                <s:Parallel>
+                    <s:AddAction target="{leaveButton}"/>
+                    <s:AddAction target="{gameContainer}"/>
+                    <s:Fade target="{leaveButton}"/>
+                    <s:Fade target="{gameContainer}"/>
+                </s:Parallel>
+            </s:Sequence>
+        </s:Transition>
+        <s:Transition fromState="PlayState" toState="ChatState">
+            <s:Sequence>
+                <s:Parallel>
+                    <s:RemoveAction target="{leaveButton}"/>
+                    <s:RemoveAction target="{gameContainer}"/>
+                    <s:Fade target="{leaveButton}"/>
+                    <s:Fade target="{gameContainer}"/>
+                </s:Parallel>
+                <s:Resize duration="500" easer="{panelResize}"
+                    target="{chatbox}"/>
+            </s:Sequence>
+        </s:Transition>
+    </s:transitions>
+
+    <s:Panel title="Dennis' Hexmaster 2012 Platinum Delicious Edition"
+            width="100%" height="100%"
+            horizontalCenter="0" verticalCenter="0"
+            excludeFrom="LoginState">
+        <s:HGroup left="10" right="10" top="10" bottom="10">
+            <s:VGroup width="100%" height="100%" horizontalAlign="center"
+                verticalAlign="bottom">
+                <s:Button id="leaveButton" label="Leave Game"
+                    click="returnToLobby()" includeIn="PlayState"/>
+                <self:GameContainer id="gameContainer" includeIn="PlayState"/>
+                <self:Chatbox id="chatbox" height="100%"
+                    height.PlayState="50%"/>
+            </s:VGroup>
+            <s:VGroup height="100%" width="25%">
+                <s:Panel id="lobbyPanel" title="Lobby" width="100%"
+                    height="50%">
+                    <s:List id="lobby" dataProvider="{userProvider}"
+                        enabled.PlayState="false"
+                        doubleClickEnabled="true"
+                        doubleClick="invite(event)" width="100%"
+                        height="100%"/>
+                </s:Panel>
+                <s:Panel title="Games" height="50%" width="100%">
+                    <s:List id="rooms" dataProvider="{roomProvider}"
+                        enabled.PlayState="false"
+                        doubleClickEnabled="true"
+                        doubleClick="spectate(event)" width="100%"
+                        height="100%"/>
+                </s:Panel>
+            </s:VGroup>
+        </s:HGroup>
+    </s:Panel>
+
+    <s:Group id="loginScreen" enabled="false" includeIn="LoginState" horizontalCenter="0"
+        verticalCenter="0">
+        <s:Panel title="Login">
+            <s:VGroup horizontalAlign="center" left="10" right="10" top="10"
+                bottom="10">
+                <s:HGroup right="10" verticalAlign="middle">
+                    <s:Label text="User name:"/>
+                    <s:TextInput id="userName" enter="login()"/>
+                </s:HGroup>
+                <s:Spacer height="10"/>
+                <s:Button label="Go!" click="login()"/>
+            </s:VGroup>
+        </s:Panel>
+    </s:Group>
+
+</s:Application>
